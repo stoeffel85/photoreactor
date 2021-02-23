@@ -13,16 +13,16 @@ os.system('sudo pigpiod') #switch on pigpiod in the shell
 import pigpio #import pigpio
 from signal import pause
 
-#this function starts the PWM for the LEDs and can only be called after the pigpio has been initialized with pi = pigpio.pi()
+#start the PWM for the LEDs and can only be called after the pigpio has been initialized with pi = pigpio.pi()
 def start_hardware_timed_software_pwm(pi, pin, frequency, range, duty_cycle):
     pi.set_mode(pin, pigpio.OUTPUT) #switch pin to output
     pi.set_PWM_frequency(pin, frequency)  #e.g. set_PWM_frequency(4, 1100) sets the frequency of pin 4 to the closest choosable frequency of t (check pigpio table)
-    pi.set_PWM_range(pin, range) #sets the range of the gpio to the second number, e.g. 100 to work in %,
-    pi.set_PWM_dutycycle(pin, duty_cycle) #sets the dutycycle of a pin according to pwmrange (if 100, then in %), also starts the pwm
+    pi.set_PWM_range(pin, range) #set the range of the gpio to the second number, e.g. 100 to work in %,
+    pi.set_PWM_dutycycle(pin, duty_cycle) #set the dutycycle of a pin according to pwmrange (if 100, then in %), also starts the pwm
 
-#this stops the PWM for the LEDs
+#stop the PWM for the LEDs
 def stop_hardware_timed_software_pwm(pi, pin):
-    pi.set_PWM_dutycycle(pin, 0) #sets the dutycycle of a pin according to pwmrange (if 100, then in %), also stops the pwm
+    pi.set_PWM_dutycycle(pin, 0) #set the dutycycle of a pin according to pwmrange (if 100, then in %), also stops the pwm
     return("OFF")
 
 def callbackfunction(gpio, level, tick):

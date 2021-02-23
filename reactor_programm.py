@@ -84,7 +84,7 @@ def regulate_reaction_temperature1(pi, controllerP, controllerI, targettemperatu
     calcdutycycle = round(fanSpeed * 10000) #calculate the dutycyle for the PWM regulation of the fanspeed from the fanspeed in %
     pi.hardware_PWM(18, 25000, calcdutycycle) #  pin 18, 25000Hz and dutycycle,
     
-    #For tuning etc. print the parameters
+    #for tuning etc. print the parameters
     #print("measured T: " + str(measuredtemperature) + "°C; Target T: " + str(targettemperature) + "°C; Difference:" + str(Tdifference) + "°C; Fanspeed: " + str(fanSpeed) + "%, pDiff: " + str(pDiff) + "; iDiff:" + str(iDiff) + "; controller_sum: " + str(controller_sum))
     
     return fanSpeed

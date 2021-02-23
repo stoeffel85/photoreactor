@@ -101,8 +101,8 @@ pin_channel10 = 27
 pin_channel11 = 22
 pin_channel12 = 23
 
-#Tthe reaction parameters are packed into two nested lists (essentially a table with all channels as columns and all settings as rows).
-#For each channel a list with all settings is generated and then all these lists are combined to the nested list
+#the reaction parameters are packed into two nested lists (essentially a table with all channels as columns and all settings as rows).
+#for each channel a list with all settings is generated and then all these lists are combined to the nested list
 settings_channel_1 = [pin_channel1, state_channel1, frequency_channel1, duty_range1, dutycycle_channel1, reactiontime1]
 settings_channel_2 = [pin_channel2, state_channel2, frequency_channel2, duty_range2, dutycycle_channel2, reactiontime2]
 settings_channel_3 = [pin_channel3, state_channel3, frequency_channel3, duty_range3, dutycycle_channel3, reactiontime3]
