@@ -255,7 +255,7 @@ mkdir logs
 
 ## Electronics
 
-The breadboard scheme of the electronics is below and can be downloaded [here](/schemes_and_circuits/breadboard_scheme.pdf). The circuits are [here](/schemes_and_circuits/circuit _diagram.pdf).
+The breadboard scheme of the electronics is below and can be downloaded [here](/schemes_and_circuits/breadboard_scheme.pdf). The circuits are [here](/schemes_and_circuits/circuit_diagram.pdf).
 
 ![Figure 11: Electronics.](/schemes_and_circuits/breadboard_scheme.png "Figure 11: Electronics.")
 
