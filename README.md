@@ -34,7 +34,7 @@ Here the plans, scripts and electronic schemes required to build a custom open s
 - Allows controlling shaking speed (with a commercial benchtop shaker)
 - Logs all parameters throughout the experiment.
 
-In total the costs of the electronic components with one set of high-power LED bars sums up to ca. EUR 400 (without the commercial benchtop shaker and, if required, an external incubator for better temperature control). The photochemical and thermal features were carefully evaluated and were made available in a publication in a peer-reviewed journal ( **to be published** ).
+In total the costs of the electronic components with one set of high-power LED bars sums up to ca. EUR 400 (without the commercial benchtop shaker and, if required, an external incubator for better temperature control). The photochemical and thermal features were carefully evaluated and were made available in a publication in a peer-reviewed journal (*to be published*).
 
 ## Installation and Raspberry Pi Setup
 
@@ -52,13 +52,17 @@ sudo apt-get install python-dev python-pip
 
 This pigpio daemon ([http://abyz.me.uk/rpi/pigpio/pigpiod.html](http://abyz.me.uk/rpi/pigpio/pigpiod.html)) allows control of the Raspberry Pi&#39;s GPIO pins and supports hardware based PWM. To install use the following command:
 
+```
 sudo apt-get install pigpio python-pigpio python3-pigpio
+```
 
 To start or stop the daemon use:
 
+```
 sudo pigpiod
 
 sudo killall pigpiod
+```
 
 The available PWM frequencies depend on the set sample rate ([http://abyz.me.uk/rpi/pigpio/python.html#set\_PWM\_frequency](http://abyz.me.uk/rpi/pigpio/python.html#set_PWM_frequency)). For changing the sample rate see: [http://abyz.me.uk/rpi/pigpio/pigpiod.html](http://abyz.me.uk/rpi/pigpio/pigpiod.html)
 
@@ -66,105 +70,124 @@ The available PWM frequencies depend on the set sample rate ([http://abyz.me.uk/
 
 The temperature sensor (DS18B20) is controlled via the 1-wire protocol on the GPIO BCM 4. This needs to be enabled in the config.txt:
 
+```
 sudo nano /boot/config.txt
+```
 
 The following line needs to be added and the system rebooted:
 
+```
 dtoverlay=w1-gpio,gpiopin=4
+```
 
 After reboot, the modules need to be loaded:
 
+```
 sudo modprobe w1-gpio pullup=1
 
 sudo modprobe w1-therm
+```
 
 and added to /etc/modules by running:
 
+```
 sudo nano /etc/modules
+```
 
 and adding the lines:
 
+```
 w1-gpio pullup=1
 
 w1-therm
+```
 
 If this was successful, and the sensor is properly connected it should appear at:
 
+```
 /sys/bus/w1/devices/
+```
 
 ### GPIO serial port
 
 The UART port (GPIO BCM 14) needs to be enabled to allow functioning of the status LED. Therefore, the config file needs to be edited:
 
+```
 sudo nano /boot/config.txt
+```
 
 and the following line added:
 
+```
 enable\_uart=1
+```
 
 ### Adding the shutdown script to crontab
 
 To run the shutdown\_script.py script, that checks for the shutdown command of the on/off button, after each boot, it needs to be added to crontab. First the script needs to be made executable:
 
+```
 sudo chmod 755 shutdown\_script.py
+```
 
 Then crontab is started:
 
+```
 sudo crontab -e
+```
 
 and the following line is added (this executes the script after each boot and puts the logs to the cronlog file)
 
+```
 @reboot sudo python3 /home/pi/shutdown\_script.py \&gt;/home/pi/logs/cronlog 2\&gt;&amp;1 &amp;
+```
 
 Finally, the folder for the logs is made:
 
+```
 mkdir logs
+```
 
 ## Reactor Dimensions
 
-![](RackMultipart20210222-4-14fpec1_html_e0102911c7421c69.jpg)
+![Figure 1: Reactor dimensions – view from top.](/schemes_and_circuits/Figure1.jpg "Figure 1: Reactor dimensions – view from top.")
+*Figure 1: Reactor dimensions – view from top.*
 
-_Figure 1: Reactor dimensions – view from top._
+**placeholder - figure to come**
 
-| Placeholder – to come |
-| --- |
+*Figure 2: Reactor dimensions – photo from top.*
 
-_Figure 2: Reactor dimensions – photo from top._
+![Figure 3: Reactor dimensions – side view.](/schemes_and_circuits/Figure3.jpg "Figure 3: Reactor dimensions – side view.")
 
-![](RackMultipart20210222-4-14fpec1_html_d73b6a0a5b1a66d8.jpg)
+*Figure 3: Reactor dimensions – side view.*
 
-_Figure 3: Reactor dimensions – side view._
+![Figure 4: Reactor dimensions – view from top, sides A, B and C.](/schemes_and_circuits/Figure4.jpg "Figure 4: Reactor dimensions – view from top, sides A, B and C.")
 
-![](RackMultipart20210222-4-14fpec1_html_f4a1296e71abad37.jpg)
+*Figure 4: Reactor dimensions – view from top, sides A, B and C.*
 
-_Figure 4: Reactor dimensions – view from top, sides A, B and C._
+![Figure 5: Reactor dimensions – electronics box, side A.](/schemes_and_circuits/Figure5.jpg "Figure 5: Reactor dimensions – electronics box, side A.")
 
-![](RackMultipart20210222-4-14fpec1_html_ad8a32072bbdcdbe.jpg)
+*Figure 5: Reactor dimensions – electronics box, side A.*
 
-_Figure 5: Reactor dimensions – electronics box, side A._
+**placeholder - figure to come**
 
-| Placeholder – to come |
-| --- |
+*Figure 6: Reactor dimensions – photo from side A.*
 
-_Figure 6: Reactor dimensions – photo from side A._
+![Figure 7: Reactor dimensions – electronics box, side B.](/schemes_and_circuits/Figure7.jpg "Figure 7: Reactor dimensions – electronics box, side B.")
 
-![](RackMultipart20210222-4-14fpec1_html_35e2effecb7ab6e9.jpg)
+*Figure 7: Reactor dimensions – electronics box, side B.*
 
-_Figure 7: Reactor dimensions – electronics box, side B._
+**placeholder - figure to come**
 
-| Placeholder – to come |
-| --- |
+*Figure 8: Reactor dimensions – photo from side B.*
 
-_Figure 8: Reactor dimensions – photo from side B._
+![Figure 9: Reactor dimensions – electronics box, side C.](/schemes_and_circuits/Figure9.jpg "Figure 9: Reactor dimensions – electronics box, side C.")
 
-![](RackMultipart20210222-4-14fpec1_html_3ce2e5f30af5e99.jpg)
+*Figure 9: Reactor dimensions – electronics box, side C.*
 
-_Figure 9: Reactor dimensions – electronics box, side C._
+**placeholder - figure to come**
 
-| Placeholder – to come |
-| --- |
-
-_Figure 10: Reactor dimensions – photo from side C._
+*Figure 10: Reactor dimensions – photo from side C.*
 
 ## Parts List
 
