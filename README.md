@@ -139,7 +139,7 @@ sudo crontab -e
 and the following line is added (this executes the script after each boot and puts the logs to the cronlog file)
 
 ```
-@reboot sudo python3 /home/pi/shutdown\_script.py \&gt;/home/pi/logs/cronlog 2\&gt;&amp;1 &amp;
+@reboot sudo python3 /home/pi/shutdown_script.py >/home/pi/logs/cronlog 2>&1 &
 ```
 
 Finally, the folder for the logs is made:
