@@ -1,4 +1,4 @@
-# Copyright 2020 by Chirstoph Winkler, University of Graz, Austria.
+# Copyright 2021 by Christoph Winkler and Wolfgang Kroutil, University of Graz, Austria.
 # This file is part of the "Open Source Photoreactor for Parallel Evaluation 
 # of Small-Scale Reactions" by Christoph Winkler and is licensed under a 
 # Creative Commons Attribution-ShareAlike 4.0 International (BY-SA) License.
