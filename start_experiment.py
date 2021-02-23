@@ -1,7 +1,16 @@
+# Copyright 2020 by Chirstoph Winkler, University of Graz, Austria.
+# This file is part of the "Open Source Photoreactor for Parallel Evaluation 
+# of Small-Scale Reactions" by Christoph Winkler and is licensed under a 
+# Creative Commons Attribution-ShareAlike 4.0 International (BY-SA) License.
+# http://creativecommons.org/licenses/by-sa/4.0/
+# https://github.com/stoeffel85/photoreactor
+# Permissions beyond the scope of this license may be available at http://biocatalysis.uni-graz.at.
+# This script uses Pigpio: http://abyz.me.uk/rpi/pigpio/python.html
+
 # coding=utf-8
 import os    #import os module
-import reactor_programm as runexp #the second file of this script with the programm
-import time #to measure the overall startingtime
+import reactor_programm as runexp #the second file of this script
+import time
 
 #adjust these once for the correct path to the temperature sensors when new sensors are connected, otherwise dont change
 sensorpath1 = '/sys/bus/w1/devices/28-0219917790d4/w1_slave'
@@ -22,12 +31,12 @@ state_channel12 = "ON"
 
 #set the frequency in Hz (standard: 1000), the duty cycle of the LED channel (as standard: from a range of 100) and the range of the duty cycle (standard: 100)
 #Pigpio can go to high frequencies but only for specific values (check Pigpio Table below) and freely choosable ranges (25-40000).
-#only the frequencies below can be chosen according to the sampling rate that is set on the system (1,2,4,5 or 10us), see table
+#only the frequencies below can be chosen according to the sampling rate that is set on the system (1,2,4,5 or 10µs), see table
 #standard sampling rate = 5µs, sampling rate can be set only in the terminal before starting the experiment, going to shorter sampling rates is very CPU intensive
 #e.g. to go to 2µs: sudo pigpiod -s 2 
 #the pigpiod can be stoped by sudo kill pigpiod
 #
-#sample rate [µs]           possible frequencies for the software PWM [Hz]
+#sample rate [µs]      possible frequencies for the software PWM [Hz]
 #
 #   1                  40000; 20000; 10000; 8000; 5000; 4000; 2500; 2000; 1600; 1250; 1000; 800; 500; 400; 250; 200; 100; 50
 #   2                  20000; 10000; 5000; 4000; 2500; 2000; 1250; 1000; 800; 625; 500; 400; 250; 200; 125; 100; 50; 25
@@ -36,11 +45,11 @@ state_channel12 = "ON"
 #   8	               5000; 2500; 1250; 1000; 625; 500; 313; 250; 200; 156; 125; 100; 63; 50; 31; 25; 13; 6
 #   10	               4000; 2000; 1000; 800; 500; 400; 250; 200; 160; 125; 100; 80; 50; 40; 25; 20; 10; 5
 
-# Do not change the folling frequences and duty ranges (required for constant current driver)
+#do not change the folling frequences and duty ranges (required for comuncation to the constant current driver)
 frequency_channel1 = frequency_channel2 = frequency_channel3 = frequency_channel4 = frequency_channel5 = frequency_channel6 = frequency_channel7 = frequency_channel8 = 100
 duty_range1 = duty_range2 = duty_range3 = duty_range4 = duty_range5 = duty_range6 = duty_range7 = duty_range8 = 100
 
-# These frequences, duty cycles and duty ranges may be altered
+#the following frequences, duty cycles and duty ranges may be altered
 frequency_channel9 = 100
 frequency_channel10 = 100
 frequency_channel11 = 100
@@ -65,20 +74,20 @@ dutycycle_channel11 = 90
 dutycycle_channel12 = 90
 
 #set the reaction times in seconds
-reactiontime1 = 2000
-reactiontime2 = 2000
-reactiontime3 = 2000
-reactiontime4 = 2000
-reactiontime5 = 2000
-reactiontime6 = 2000
-reactiontime7 = 2000
-reactiontime8 = 2000
-reactiontime9 = 2000
-reactiontime10 = 2000
-reactiontime11 = 2000
-reactiontime12 = 2000
+reactiontime1 = 60*60*16
+reactiontime2 = 60*60*16
+reactiontime3 = 60*60*16
+reactiontime4 = 60*60*16
+reactiontime5 = 60*60*16
+reactiontime6 = 60*60*16
+reactiontime7 = 60*60*16
+reactiontime8 = 60*60*16
+reactiontime9 = 60*60*16
+reactiontime10 = 60*60*16
+reactiontime11 = 60*60*16
+reactiontime12 = 60*60*16
 
-#Do not change the folling numbers of the GPIO pins
+#do not change the folling numbers of the GPIO pins
 pin_channel1 = 24
 pin_channel2 = 10
 pin_channel3 = 9
@@ -92,7 +101,7 @@ pin_channel10 = 27
 pin_channel11 = 22
 pin_channel12 = 23
 
-#The reaction parameters are packed into two nested lists (essentially a table with all channels as collumns and all settings as rows).
+#Tthe reaction parameters are packed into two nested lists (essentially a table with all channels as columns and all settings as rows).
 #For each channel a list with all settings is generated and then all these lists are combined to the nested list
 settings_channel_1 = [pin_channel1, state_channel1, frequency_channel1, duty_range1, dutycycle_channel1, reactiontime1]
 settings_channel_2 = [pin_channel2, state_channel2, frequency_channel2, duty_range2, dutycycle_channel2, reactiontime2]
@@ -108,14 +117,13 @@ settings_channel_11 = [pin_channel11, state_channel11, frequency_channel11, duty
 settings_channel_12 = [pin_channel12, state_channel12, frequency_channel12, duty_range12, dutycycle_channel12, reactiontime12]
 settings_all_channels = [settings_channel_1, settings_channel_2, settings_channel_3, settings_channel_4, settings_channel_5, settings_channel_6, settings_channel_7, settings_channel_8, settings_channel_9, settings_channel_10, settings_channel_11, settings_channel_12]
 
-#set the reaction temperatures in °C
-reactiontemperature1 = reactiontemperature2 = 30
-#reactiontemperature2 = 25
+#set the reaction temperature in °C
+reactiontemperature1 = 30
 
-#set intervall of data logging in sec (to be exact in cycles of the while loop), should be the same or an integral multiple as controllintervall and greater than 1
+#set intervall of data logging in sec (to be exact in cycles of the while loop), should be the same or an integer multiple of controllintervall and greater than 1
 reportintervall = 5
 
-#set mode of experiment "single" for single-experiment, "seq" for sequential. The first experiment in  a sequence must be single 
+#set mode of experiment "single" for single-experiment, "seq" for sequential. The first experiment in a sequence must be single 
 experimentmode = "single"
 
 #define location and name of the logfile
@@ -137,13 +145,10 @@ runexp.run_experiment(settings_all_channels, controllerP, controllerI, controllI
 
 #uncomment below to test:
 #experimentmode = "seq"
-#The most straight forward is to directly edit the nested list above. 
-#Therefore use settings_all_channels[number of the channel][number of the setting]
-#For number of the channel: take the channel number -1
-#numbers of the settings: 0:GPIO pin of the channel 1:state of the channel [ON or OFF]; 2: frequency of the channel; 3: duty range of the channel; 4: duty cycle of the channel; 5 reaction time of the channel
+#most straight forward is to directly edit the nested list above. 
+#therefore use settings_all_channels[number of the channel][number of the setting]
+#for number of the channel: take the channel number
+#numbers of the settings: 0:GPIO pin of the channel; 1:state of the channel [ON or OFF]; 2: frequency of the channel; 3: duty range of the channel; 4: duty cycle of the channel; 5 reaction time of the channel
 #e.g. to change the duty cycle of channel 5:
 #settings_all_channels[4][4] = 100
 #runexp.run_experiment(settings_all_channels, controllerP, controllerI, controllIntervall, reactiontemperature1, reportintervall, experimentmode, overallstartingtime, logfilepath, sensorpath1)
-
-#stop the pigpiod
-os.system('sudo killall pigpiod')

@@ -1,22 +1,31 @@
+# Copyright 2020 by Chirstoph Winkler, University of Graz, Austria.
+# This file is part of the "Open Source Photoreactor for Parallel Evaluation 
+# of Small-Scale Reactions" by Christoph Winkler and is licensed under a 
+# Creative Commons Attribution-ShareAlike 4.0 International (BY-SA) License.
+# http://creativecommons.org/licenses/by-sa/4.0/
+# https://github.com/stoeffel85/photoreactor
+# Permissions beyond the scope of this license may be available at http://biocatalysis.uni-graz.at.
+# This script uses Pigpio: http://abyz.me.uk/rpi/pigpio/python.html
+
 # coding=utf-8
-import time  #required to work with time.
-import csv   #required to work with csv files.
+
+import time  #work with time.
+import csv   #work with csv files.
 import os    #import os module
-os.system('sudo pigpiod') #switch on pigpiod in the console
+os.system('sudo pigpiod') #switch on pigpiod in the shell
 import pigpio #import pigpio
 
-
 #set the global variables for the PI(D) controller
-controllerSum1and2 = 0
+controller_sum = 0
 
-#this function starts the PWM for the LED-stripes and can only be called after the pigpio has been initialized with pi = pigpio.pi()
+#this function starts the PWM for the LEDs and can only be called after the pigpio has been initialized with pi = pigpio.pi()
 def start_hardware_timed_software_pwm(pi, pin, frequency, range, duty_cycle):
     pi.set_mode(pin, pigpio.OUTPUT) #switch pin to output
-    pi.set_PWM_frequency(pin, frequency)  #set_PWM_frequency(4, 1100) sets the frequency of pin 4 to the closest choosable frequency of t (check pigpio table)
+    pi.set_PWM_frequency(pin, frequency)  #e.g. set_PWM_frequency(4, 1100) sets the frequency of pin 4 to the closest choosable frequency of t (check pigpio table)
     pi.set_PWM_range(pin, range) #sets the range of the gpio to the second number, e.g. 100 to work in %,
     pi.set_PWM_dutycycle(pin, duty_cycle) #sets the dutycycle of a pin according to pwmrange (if 100, then in %), also starts the pwm
 
-#this stops the PWM for the LED stripes
+#this stops the PWM for the LEDs
 def stop_hardware_timed_software_pwm(pi, pin):
     pi.set_PWM_dutycycle(pin, 0) #sets the dutycycle of a pin according to pwmrange (if 100, then in %), also stops the pwm
     return("OFF")
@@ -47,61 +56,38 @@ def get_temperature_raw(sensorpath):
 #get the raw temperature from a sensor
 def get_temperature(sensorpath):
     lines = get_temperature_raw(sensorpath) #get the tempeature data from the sensor file
-    while lines[0].strip()[-3:] != 'YES':   #check if data
+    while lines[0].strip()[-3:] != 'YES':   #check if contains data
         time.sleep(0.2)
         lines = get_temperature_raw(sensorpath)  #get the tempeature data from the sensor file
-    equals_pos = lines[1].find('t=')       #find temperature in the details
-    if equals_pos != -1:                   #ignore first line of the file
-        temp_string = lines[1][equals_pos+2:]
-        temperature = float(temp_string) / 1000.0   #convert to Celsius
+    pos = lines[1].find('t=')       #find temperature
+    if pos != -1:                   #ignore first line
+        temperature_string = lines[1][pos+2:]
+        temperature = float(temperature_string) / 1000.0   #convert to Celsius
         return temperature
 
-#PI(D)regulate the reactiontemperature
+#PI(D) regulate the reactiontemperature
 def regulate_reaction_temperature1(pi, controllerP, controllerI, targettemperature, measuredtemperature):
-    global controllerSum1and2 #get the global variables
+    global controller_sum #get the global variables
     Tdifference = measuredtemperature - targettemperature #calculate the difference from the target temperature
-    controllerSum1and2 = controllerSum1and2 + Tdifference
+    controller_sum = controller_sum + Tdifference
     pDiff = Tdifference * controllerP #calculate the P parameter
-    iDiff = controllerSum1and2 * controllerI #calculate the I parametre
+    iDiff = controller_sum * controllerI #calculate the I parametre
     fanSpeed = pDiff + iDiff #set the new fan-speed in %
     if fanSpeed > 100:
         fanSpeed = 100
-    if fanSpeed < 15:
+    elif fanSpeed < 15:
         fanSpeed = 15
-    if controllerSum1and2 > 100: #set the controlersum for the next iteration of the regulation
-        controllerSum1and2 = 100
-    if controllerSum1and2 < -100:
-        controllerSum1and2 = -100
+    if controller_sum > 100: #set the controlersum for the next iteration of the regulation
+        controller_sum = 100
+    elif controller_sum < -100:
+        controller_sum = -100
     calcdutycycle = round(fanSpeed * 10000) #calculate the dutycyle for the PWM regulation of the fanspeed from the fanspeed in %
     pi.hardware_PWM(18, 25000, calcdutycycle) #  pin 18, 25000Hz and dutycycle,
     
-    #regulate external fan
-    if fanSpeed >= 90:
-        external_fanspeed = 100
-        pi.hardware_PWM(13, 25000, external_fanspeed) #  external fan switched on, 100% speed, pin 13, 25000Hz and dutycycle 100
-    elif fanSpeed >= 80 and fanSpeed < 90:
-        external_fanspeed = 50
-        pi.hardware_PWM(13, 25000, external_fanspeed) #  external fan switched on, 50% speed, pin 13, 25000Hz and dutycycle 50
-    elif fanSpeed >= 50 and fanSpeed < 80:
-        external_fanspeed = 15
-        pi.hardware_PWM(13, 25000, external_fanspeed) #  external fan switched on, 15% speed, pin 13, 25000Hz and dutycycle 10
-    else:
-        external_fanspeed = 0
-        pi.hardware_PWM(13, 25000, external_fanspeed) #  external fan switched off, which then is also 15% speed due to the fans PWM regulation, pin 13, 25000Hz and dutycycle 0
-
-    #regulate heating
-    if Tdifference < -1:
-        heating = "ON"
-        pi.write(16, 1)
-    else:
-        heating = "OFF"
-        pi.write(16, 0)
-
     #For tuning etc. print the parameters
-    #print("measured T: " + str(measuredtemperature) + "°C; Target T: " + str(targettemperature) + "°C; Difference:" + str(Tdifference) + "°C; Fanspeed: " + str(fanSpeed) + "%: External Fanspeed: " + str(external_fanspeed) + "%; Heating: " + heating + "; pDiff: " + str(pDiff) + "; iDiff:" + str(iDiff) + "; controllerSum1and2: " + str(controllerSum1and2))
+    #print("measured T: " + str(measuredtemperature) + "°C; Target T: " + str(targettemperature) + "°C; Difference:" + str(Tdifference) + "°C; Fanspeed: " + str(fanSpeed) + "%, pDiff: " + str(pDiff) + "; iDiff:" + str(iDiff) + "; controller_sum: " + str(controller_sum))
     
-    fan_speeds = [fanSpeed, external_fanspeed, heating]
-    return fan_speeds
+    return fanSpeed
 
 #write the status to the CSV-logfile
 def write_to_csv(logfilepath, datarow, mode):
@@ -121,59 +107,50 @@ def write_to_csv(logfilepath, datarow, mode):
 
 #starts an experiment with one set of parameters.
 def run_experiment(settings_all_channels, controllerP, controllerI, controllIntervall, reactiontemperature1, reportintervall, experimentmode, overallstartingtime, logfilepath, sensorpath1):
-
    try:
         startingtime = time.time() #measure startingtime for control of the reactiontime
-        controllIntervall -= 2 #substract 2 seconds from the controllintervall, as this is the time that is consumed by the temperature measurement
-        controllIntervallstate = controllIntervall #start counter of the controllintervall in a way, that the cotroll starts already at the experiments start
-        reportintervallstate = reportintervall #start counter of the reportintervall in a way, that the report starts right at the begining of the experiment
+        controllIntervall -= 1 #substract the number of temperature measurements  from the controllintervall, as this is the time in seconds that is consumed one temperature measurement
+        controllIntervallstate = controllIntervall #start counter of the controllintervall so that the controll starts already at the experiments start
+        reportintervallstate = reportintervall #start counter of the reportintervall so that the report starts right at the begining of the experiment
 
-        pi = pigpio.pi()  # connect pigpio to the gpio of the pi
+        pi = pigpio.pi()  #connect pigpio to the gpio of the pi
 
         print("-------------------------------------------------------------------------------------------------------------------------------------")
         print("The startingtime of the experiment is", startingtime, "sec") #starting time of the call of this run_experiment() function
         print("The overall startingtime is", overallstartingtime, "sec") #starting time of the first call of this run_experiment() function; differs from startingtime when this funciton is called several times to generate changing conditions over time (e.g. reaction temperature gradient, experimentmode = seq)
-
-        #switch on current to fan and leds, (a magnetic relais is triggered that switches on current)
-        pi.set_mode(21, pigpio.OUTPUT) 
-        pi.write(21, 1)
-        pi.set_mode(16, pigpio.OUTPUT)
-        print("Electricity ON!")
         print("|-----------------------------------------------------------------|-----------------------------------------------------------------|")
 
         #start logfile if this is the first call of the run_experiment() function
         if experimentmode == "single":
             write_to_csv(logfilepath, [["time in [sec]", "temperature [°C]", "speed cooling fans [%]","LEDchanel1 state", "LEDchannel1 frequency [Hz]", "LEDchannel1 duty cycle [%]", "LEDchanel2 state", "LEDchannel2 frequency [Hz]", "LEDchannel2 duty cycle [%]", "LEDchanel3 state", "LEDchannel3 frequency [Hz]", "LEDchannel3 duty cycle [%]", "LEDchanel4 state", "LEDchannel4 frequency [Hz]", "LEDchannel4 duty cycle [%]", "LEDchanel5 state", "LEDchannel5 frequency [Hz]", "LEDchannel5 duty cycle [%]", "LEDchanel6 state", "LEDchannel6 frequency [Hz]", "LEDchannel6 duty cycle [%]", "LEDchanel7 state", "LEDchannel7 frequency [Hz]", "LEDchannel7 duty cycle [%]", "LEDchanel8 state", "LEDchannel8 frequency [Hz]", "LEDchannel8 duty cycle [%]", "LEDchanel9 state", "LEDchannel9 frequency [Hz]", "LEDchannel9 duty cycle [%]", "LEDchanel10 state", "LEDchannel10 frequency [Hz]", "LEDchannel10 duty cycle [%]", "LEDchanel11 state", "LEDchannel11 frequency [Hz]", "LEDchannel11 duty cycle [%]", "LEDchanel12 state", "LEDchannel12 frequency [Hz]", "LEDchannel12 duty cycle [%]"]], 'w')
 
-        #switch on the LED stripes
+        #switch on the LED stripes and set the channels that are "OFF" to a duty cycle of "0"
         for i in range(12):
             if settings_all_channels[i][1] == "ON":
                 start_hardware_timed_software_pwm(pi, settings_all_channels[i][0], settings_all_channels[i][2], settings_all_channels[i][3], settings_all_channels[i][4])
+        for i in range(12):
+            if settings_all_channels[i][1] == "OFF":
+                start_hardware_timed_software_pwm(pi, settings_all_channels[i][0], settings_all_channels[i][2], settings_all_channels[i][3], 0)
 
-        #switch on the channels for the hardware PWM for fan speed controll
+        #switch on the GPIO for the hardware PWM for fan speed controll
         pi.set_mode(18, pigpio.OUTPUT) #reactor fan
-        pi.set_mode(13, pigpio.OUTPUT) #external fan (box)
-
         
-        #for as long as at least one of the LED-stripes is On, check the reactiontimes, controll the temperatures and the fan speed and print & log the status
+        #for as long as at least one of the LED-stripes is ON, check the reactiontimes, controll the temperatures and the fan speed and print & log the status
         while settings_all_channels[0][1] == "ON" or settings_all_channels[1][1] == "ON" or settings_all_channels[2][1] == "ON" or settings_all_channels[3][1] == "ON" or settings_all_channels[4][1] == "ON" or settings_all_channels[5][1] == "ON" or settings_all_channels[6][1] == "ON" or settings_all_channels[7][1] == "ON" or settings_all_channels[8][1] == "ON" or settings_all_channels[9][1] == "ON" or settings_all_channels[10][1] == "ON" or settings_all_channels[11][1]== "ON":
 
             time.sleep(1) #wait 1 second
-            now = time.time() #measure currend time to calculate the passed reactiontime
+            now = time.time() #get current time to calculate the passed reactiontime
 
-            #If the reactiontime passed, swith off the appropriate channel(s)
+            #When the reactiontime has passed, swith off the appropriate channel(s)
             for i in range(12):
                 if settings_all_channels[i][1] == "ON" and startingtime + settings_all_channels[i][5] < now:
                     settings_all_channels[i][1] = stop_hardware_timed_software_pwm(pi, settings_all_channels[i][0])
 
             if controllIntervallstate >= controllIntervall: #after a specific time (controllintervall) measure temperatures and perform the next iteration of the PID controll 
-                #measure temperature, takes beween 0.5 and 1sec
+                #measuring temperature, takes beween 0.5 and 1sec
                 temperature1 = get_temperature(sensorpath1)
-                reportintervallstate += 1 #add two to the reportintervall, as this is the measurement time of the temperature sensors and then regulate the temperatures
-                fan_speeds = regulate_reaction_temperature1(pi, controllerP, controllerI, reactiontemperature1, temperature1)
-                fanspeed1 = fan_speeds[0]
-                externalfanspeed1 = fan_speeds[1]
-                heating = fan_speeds[2]                
+                reportintervallstate += 1 #add 1 to the reportintervall, as this is the measurement time of the temperature sensors and then regulate the temperatures
+                fanspeed1 = regulate_reaction_temperature1(pi, controllerP, controllerI, reactiontemperature1, temperature1)
                 controllIntervallstate = 0 #reset the counter for the controllintervall
 
             controllIntervallstate += 1 #add 1 to the counter for the controllintervall
@@ -182,7 +159,7 @@ def run_experiment(settings_all_channels, controllerP, controllerI, controllInte
                 passedtime = round(now - overallstartingtime, 1) #calculate for how long the experiment is going on
 
                 #print to console
-                print('|  Reactiontime: {:10} sec | Temperature: {:5} °C | Speed Ractor-Fans: {:5} % | Speed External Fans: {:5} % | Heating: {:3}  |'.format(passedtime, round(temperature1, 1), round(fanspeed1, 1), externalfanspeed1, heating))
+                print('|  Reactiontime: {:10} sec | Temperature: {:5} °C | Speed Ractor-Fans: {:5} % |'.format(passedtime, round(temperature1, 1), round(fanspeed1, 1)))
                 print("|-----------------------------------------------------------------|-----------------------------------------------------------------|")
                 for i in range(12): #Print the status, the frequency and the duty cycle for each channel
                     if (i+1)%2 == 0:
@@ -203,56 +180,14 @@ def run_experiment(settings_all_channels, controllerP, controllerI, controllInte
         #stop fans
         pi.hardware_PWM(18, 0, 0)
         pi.set_mode(18, pigpio.INPUT)
-        pi.hardware_PWM(13, 0, 0)
-        pi.set_mode(13, pigpio.INPUT)
-        #stop heating
-        pi.write(16, 0)
-        #switch off electricity
-        pi.write(21, 0)
-        print("Electricity OFF")
-        pi.stop()  #stop connection
         print("Time after reaction:", time.time())
 
-   except KeyboardInterrupt: #in case the experiment is abortet (Strg + C)
-       #stop current
-       pi.write(21, 0)
-       print("Electricity OFF")
-
+   except KeyboardInterrupt: #in case the experiment is aborted (Strg + C)
        #stop LEDs
-       pi.set_PWM_dutycycle(24, 0)
-       pi.set_mode(24, pigpio.INPUT)
-       pi.set_PWM_dutycycle(10, 0)
-       pi.set_mode(10, pigpio.INPUT)
-       pi.set_PWM_dutycycle(9, 0)
-       pi.set_mode(9, pigpio.INPUT)
-       pi.set_PWM_dutycycle(25, 0)
-       pi.set_mode(25, pigpio.INPUT)
-       pi.set_PWM_dutycycle(11, 0)
-       pi.set_mode(11, pigpio.INPUT)
-       pi.set_PWM_dutycycle(8, 0)
-       pi.set_mode(8, pigpio.INPUT)
-       pi.set_PWM_dutycycle(7, 0)
-       pi.set_mode(7, pigpio.INPUT)
-       pi.set_PWM_dutycycle(5, 0)
-       pi.set_mode(5, pigpio.INPUT)
-       pi.set_PWM_dutycycle(17, 0)
-       pi.set_mode(17, pigpio.INPUT)
-       pi.set_PWM_dutycycle(27, 0)
-       pi.set_mode(27, pigpio.INPUT)
-       pi.set_PWM_dutycycle(22, 0)
-       pi.set_mode(22, pigpio.INPUT)
-       pi.set_PWM_dutycycle(23, 0)
-       pi.set_mode(23, pigpio.INPUT)
+       for i in range(12):
+            stop_hardware_timed_software_pwm(pi, settings_all_channels[i][0])
        #stop fans
        pi.hardware_PWM(18, 0, 0)
        pi.set_mode(18, pigpio.INPUT)
-       pi.hardware_PWM(13, 0, 0)
-       pi.set_mode(13, pigpio.INPUT)
-       #stop heating
-       pi.write(16, 0)
-       pi.stop() #stop connection
-       #stop the pigpiod
-       os.system('sudo killall pigpiod')
        print("The experiment was stopped manually")
        print("Time after reaction:", time.time())
-
