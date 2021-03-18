@@ -27,8 +27,8 @@
 Here the plans, scripts and electronic schemes required to build a custom open source photoreactor that is designed to run several small-scale photoreactions in parallel are collected. The reactor has the following features that can be controlled via a python script on a Raspberry Pi minicomputer:
 
 - Has space for up to 24 reaction vials (1.5 mL HPLC vials)
-- Allows investigation four different illumination conditions in parallel (four rows of six vials, each row has space for up to two light sources)
-- Allows using different light source (quick exchange of different light sources with different wavelengths or light color by simple plugging in)
+- Allows investigation of four different illumination conditions in parallel (four rows of six vials, each row has space for up to two light sources)
+- Allows using different light sources (quick exchange of different light sources with different wavelengths or light color by simple plugging in)
 - Allows control of the light intensity (PWM control of the light intensity for each light source with a Raspberry Pi)
 - Allows logging and controlling the reaction temperature (measurement of the reaction temperature inside a reaction vial using a digital temperature sensor and temperature control by controlling the speed of external high-power cooling fans)
 - Allows controlling shaking speed (with a commercial benchtop shaker)
@@ -46,7 +46,9 @@ The following settings need to be made and libraries need to be installed:
 
 The reactor is controlled via a python script. If not already installed, use the following command to install the libraries:
 
+```
 sudo apt-get install python-dev python-pip
+```
 
 ### Pigpio
 
@@ -263,13 +265,13 @@ The breadboard scheme of the electronics is below and can be downloaded [here](/
 
 In the following the different systems are shortly described:
 
-The power is from a 24V power supply (close to 180 W are required if the reactor runs at full power). The 24V are converted to 5V to supply the Raspberry Pi using a voltage converter.
+The power is from a 24 V power supply (close to 180 W are required if the reactor runs at full power). The 24 V are converted to 5 V to supply the Raspberry Pi using a voltage converter.
 
 An on/off button is connected to the GPIO BCM 3 and to the ground.
 
 A status LED is connected to the serial port GPIO BCM 14 and to the ground.
 
-The temperature sensor (DS18B20) is connected to GPIO BCM 4, to the ground and to a 3.3 V pin. The temperature data is then used to calculate the appropriate rotation speed of the cooling fans via an PI(D)-controller script
+The temperature sensor (DS18B20) is connected to GPIO BCM 4, to the ground and to a 3.3 V pin. The temperature data is then used to calculate the appropriate rotation speed of the cooling fans via an PI(D)-controller script.
 
 The fan speed is controlled via hardware based PWM (25 MHZ) from the GPIO BCM 18 (PWM0). The fans (Pabst 424 JH, 24V DC) are further connected to the 24 V power supply and the ground.
 
@@ -287,13 +289,13 @@ The python script to run the reactions is set up in two different files. [**&quo
  containing the program code and [**&quot;start\_experiment.py&quot;**](/start_experiment.py) which is used to set all the parameters for a given experiment. When the parameters in [**&quot;start\_experiment.py&quot;**](/start_experiment.py) were set using a text editor, e.g.:
 
 ```
-nano start\_experiment.py
+nano start_experiment.py
 ```
 
 and saved, the experiment can be started as follows:
 
 ```
-python3 start\_experiment.py
+python3 start_experiment.py
 ```
 
 Throughout the experiment all parameters are printed to the console and logged in CSV logging file.
