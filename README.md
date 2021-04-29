@@ -310,7 +310,7 @@ For the usage and tuning as well as characterization of the illumination conditi
 
 Please cite the following paper:
 
-*Accelerated Reaction Engineering of Photobiocatalytic Reactions through Parallelization with a Novel Open-Source Photoreactor; Christoph K. Winkler, Valentina Jurkaš, Luca Schmermund, Silvan Poschenrieder, Sarah Bierbaumer, Sarah Berger, Elisa Kulterer and Wolfgang Kroutil; 2021; (to be published)*
+*Accelerated Reaction Engineering of Photo(bio)catalytic Reactions through Parallelization with an Open-Source Photoreactor; Christoph K. Winkler, Stefan Simić, Valentina Jurkaš, Sarah Bierbaumer, Luca Schmermund, Silvan Poschenrieder, Sarah Berger, Elisa Kulterer, Robert Kourist and Wolfgang Kroutil; 2021; (submitted)*
 
 ## License
 
