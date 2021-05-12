@@ -153,9 +153,11 @@ mkdir logs
 ## Reactor Dimensions
 
 ![Figure 1: Reactor dimensions – view from top.](/schemes_and_circuits/Figure1.jpg "Figure 1: Reactor dimensions – view from top.")
+
 *Figure 1: Reactor dimensions – view from top.*
 
 ![Figure 2: Reactor dimensions – photo from top.](/schemes_and_circuits/Figure2.jpg "Figure 2: Reactor dimensions – photo from top.")
+
 *Figure 2: Reactor dimensions – photo from top.*
 
 ![Figure 3: Reactor dimensions – side view.](/schemes_and_circuits/Figure3.jpg "Figure 3: Reactor dimensions – side view.")
