@@ -155,7 +155,7 @@ mkdir logs
 ![Figure 1: Reactor dimensions – view from top.](/schemes_and_circuits/Figure1.jpg "Figure 1: Reactor dimensions – view from top.")
 *Figure 1: Reactor dimensions – view from top.*
 
-**placeholder - figure to come**
+![Figure 2: Reactor dimensions – Photo from top.](/schemes_and_circuits/Figure2.jpg "Figure 2: Reactor dimensions – Photo from top.")
 
 *Figure 2: Reactor dimensions – photo from top.*
 
@@ -171,7 +171,7 @@ mkdir logs
 
 *Figure 5: Reactor dimensions – electronics box, side A.*
 
-**placeholder - figure to come**
+![Figure 6: Reactor dimensions – photo from side A.](/schemes_and_circuits/Figure6.jpg "Figure 6: Reactor dimensions – photo from side A.")
 
 *Figure 6: Reactor dimensions – photo from side A.*
 
@@ -179,7 +179,7 @@ mkdir logs
 
 *Figure 7: Reactor dimensions – electronics box, side B.*
 
-**placeholder - figure to come**
+![Figure 8: Reactor dimensions – photo from side B.](/schemes_and_circuits/Figure8.jpg "Figure 8: Reactor dimensions – photo from side B.")
 
 *Figure 8: Reactor dimensions – photo from side B.*
 
@@ -187,7 +187,7 @@ mkdir logs
 
 *Figure 9: Reactor dimensions – electronics box, side C.*
 
-**placeholder - figure to come**
+![Figure 10: Reactor dimensions – photo from side C.](/schemes_and_circuits/Figure10.jpg "Figure 10: Reactor dimensions – photo from side C.")
 
 *Figure 10: Reactor dimensions – photo from side C.*
 
