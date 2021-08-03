@@ -126,10 +126,10 @@ enable\_uart=1
 
 ### Adding the shutdown script to crontab
 
-To run the shutdown\_script.py script, that checks for the shutdown command of the on/off button, after each boot, it needs to be added to crontab. First the script needs to be made executable:
+To run the shutdown_script.py script, that checks for the shutdown command of the on/off button, after each boot, it needs to be added to crontab. First the script needs to be made executable:
 
 ```
-sudo chmod 755 shutdown\_script.py
+sudo chmod 755 shutdown_script.py
 ```
 
 Then crontab is started:
